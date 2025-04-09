@@ -1,0 +1,19 @@
+
+
+time DOCKER_BUILDKIT=1 docker-compose up -d --remove-orphans
+
+docker-compose down -v
+
+
+
+# substituir o ******* por secret:
+		"bindCredential": [
+           "secret"
+    ],
+    
+    
+    
+    resource_access.${client_id}.roles
+    
+# Keycloak
+Access Token Lifespan 5 minutos 

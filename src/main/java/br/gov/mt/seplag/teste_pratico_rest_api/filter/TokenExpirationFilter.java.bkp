@@ -1,0 +1,70 @@
+package br.gov.mt.seplag.teste_pratico_rest_api.filter;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.time.Instant;
+
+public class TokenExpirationFilter extends OncePerRequestFilter {
+
+    private final OAuth2AuthorizedClientRepository authorizedClientRepository;
+
+    public TokenExpirationFilter(OAuth2AuthorizedClientRepository authorizedClientRepository) {
+        this.authorizedClientRepository = authorizedClientRepository;
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+
+        // Primeiro deixa a requisição passar pela cadeia de filtros
+        filterChain.doFilter(request, response);
+
+        // Só então verifica a autenticação (agora o SecurityContext deve estar populado)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated()
+                && authentication instanceof OAuth2AuthenticationToken oauthToken) {
+
+            OAuth2AuthorizedClient authorizedClient = authorizedClientRepository.loadAuthorizedClient(
+                    oauthToken.getAuthorizedClientRegistrationId(),
+                    authentication,
+                    request);
+
+            if (authorizedClient != null && isTokenExpired(authorizedClient.getAccessToken())) {
+                handleExpiredToken(request, response);
+            }
+        }
+    }
+
+    private boolean isTokenExpired(OAuth2AccessToken accessToken) {
+        return accessToken != null &&
+                accessToken.getExpiresAt() != null &&
+                accessToken.getExpiresAt().isBefore(Instant.now());
+    }
+
+    private void handleExpiredToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // Limpa o contexto e sessão
+        SecurityContextHolder.clearContext();
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+
+        // Redireciona para o Keycloak com prompt=login para forçar nova autenticação
+        response.sendRedirect("/oauth2/authorization/keycloak?prompt=login");
+    }
+}

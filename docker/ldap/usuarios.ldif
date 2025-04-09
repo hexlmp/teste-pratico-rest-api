@@ -1,0 +1,64 @@
+version: 1
+
+dn: dc=seplag,dc=gov,dc=br
+dc: jboss
+objectClass: top
+objectClass: domain
+
+dn: ou=Users,dc=seplag,dc=gov,dc=br
+objectClass: organizationalUnit
+objectClass: top
+ou: Users
+
+dn: uid=lucianopereira,ou=Users,dc=seplag,dc=gov,dc=br
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+cn: Luciano Machado Pereira
+sn: 03840682940
+mail: lucianopereira@seplag.gov.br
+postOfficeBox: 03840682940
+uid: lucianopereira
+userPassword: admin1234
+
+dn: uid=seplag,ou=Users,dc=seplag,dc=gov,dc=br
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+cn: Secretaria de Planejamento
+sn: 00000000001
+mail: seplag@seplag.gov.br
+postOfficeBox: 00000000001
+uid: seplag
+userPassword: admin
+
+dn: uid=user,ou=Users,dc=seplag,dc=gov,dc=br
+objectClass: top
+objectClass: person
+objectClass: inetOrgPerson
+cn: Usuário
+sn: 00000000002
+mail: usuario@seplag.gov.br
+postOfficeBox: 00000000002
+uid: user
+userPassword: user
+
+
+dn: ou=Roles,dc=seplag,dc=gov,dc=br
+objectclass: top
+objectclass: organizationalUnit
+ou: Roles
+
+dn: cn=ADMIN,ou=Roles,dc=seplag,dc=gov,dc=br
+objectClass: top
+objectClass: groupOfNames
+cn: ADMIN
+member: uid=lucianopereira,ou=Users,dc=seplag,dc=gov,dc=br
+member: uid=seplag,ou=Users,dc=seplag,dc=gov,dc=br
+
+dn: cn=USER,ou=Roles,dc=seplag,dc=gov,dc=br
+objectClass: top
+objectClass: groupOfNames
+cn: USER
+member: uid=user,ou=Users,dc=seplag,dc=gov,dc=br
+

@@ -1,0 +1,59 @@
+/* Container principal - força o grid */
+.thumbnail-grid-container {
+    display: grid !important; /* !important para sobrescrever estilos do Ext JS */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 2px;
+    overflow-x: hidden;
+    overflow-y: auto; /* Rolagem vertical se necessário */
+}
+
+/* Container de cada thumbnail */
+.thumbnail-grid-container > .x-container {
+    display: contents !important; /* Anula o container do Ext JS */
+}
+
+/* Estilo do thumbnail-item */
+.thumbnail-item {
+    width: 115px;
+    height: 160px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.x-form-item, .x-grid-item {
+    transition: none !important;
+}
+
+
+
+/* Estilo para a lista de endereços */
+.enderecos-container {
+    padding: 0px; /* Reduz o padding geral */
+}
+
+.enderecos-lista {
+    margin: 0;
+    padding: 0;
+    list-style-type: circle;
+}
+
+.endereco-item {
+    padding: 2px 0; /* Apenas padding vertical mínimo */
+    line-height: 1.2;
+    font-size: 12px;
+}
+
+.sem-endereco {
+    color: #999;
+    font-style: italic;
+    padding: 2px;
+}
+
+.toast-error {
+    border: 2px solid red;
+}

@@ -1,0 +1,135 @@
+Ext.define('App.view.pessoas.PessoaForm', {
+    extend: 'Ext.form.Panel',
+    xtype: 'pessoa-form',
+
+    bodyPadding: 15,
+    defaults: {
+        anchor: '100%',
+        labelWidth: 120,
+        msgTarget: 'side'
+    },
+
+    items: [{
+        xtype: 'hiddenfield',
+        name: 'id'
+    }, {
+        xtype: 'textfield',
+        name: 'nome',
+        fieldLabel: 'Nome Completo',
+        allowBlank: false,
+        maxLength: 100,
+        enforceMaxLength: true
+    }, {
+        xtype: 'datefield',
+        name: 'dataNascimento',
+        fieldLabel: 'Data Nascimento',
+        format: 'd/m/Y',
+        submitFormat: 'Y-m-d',
+        allowBlank: false,
+        maxValue: new Date()
+    }, {
+        xtype: 'combobox',
+        name: 'sexo',
+        fieldLabel: 'Sexo',
+        store: ['Masculino', 'Feminino', 'Outro'],
+        editable: false,
+        allowBlank: false
+    }, {
+        xtype: 'textfield',
+        name: 'mae',
+        fieldLabel: 'Nome da Mãe',
+        maxLength: 100,
+        enforceMaxLength: true
+    }, {
+        xtype: 'textfield',
+        name: 'pai',
+        fieldLabel: 'Nome do Pai',
+        maxLength: 100,
+        enforceMaxLength: true
+    },
+    {
+        xtype: 'fieldset',
+        title: 'Fotos',
+        margin: '10 0 0 0',
+        defaults: {
+            anchor: '100%',
+            labelWidth: 120,
+            msgTarget: 'side'
+        },
+        items: [{
+            xtype: 'fileuploadfield',
+            name: 'fotos',
+            fieldLabel: 'Fotos',
+            buttonText: 'Selecionar...',
+            buttonConfig: {
+                iconCls: 'x-fa fa-image'
+            },
+            listeners: {
+                change: function(field, value) {
+                    if (value) {
+                        var files = field.fileInputEl.dom.files;
+                        Ext.getApplication().getController('PessoasController').onFotosSelecionadas(field, files);
+                    }
+                }
+            },
+            // Configuração para múltiplos arquivos
+            multiple: true,
+            // Filtro para aceitar apenas imagens
+            accept: 'image/*',
+            // Mensagem personalizada para o diálogo de seleção
+            componentCls: 'custom-file-upload',
+            // Validação de tipo de arquivo
+            validator: function(value) {
+                if (value) {
+                    var files = this.fileInputEl.dom.files;
+                    for (var i = 0; i < files.length; i++) {
+                        if (!files[i].type.match('image.*')) {
+                            return 'Apenas arquivos de imagem são permitidos';
+                        }
+                    }
+                }
+                return true;
+            }
+        }, {
+            xtype: 'container',
+            reference: 'thumbnailsContainer',
+            layout: {
+                type: 'hbox',
+                pack: 'start',
+                overflowHandler: 'scroller'
+            },
+            scrollable: true,
+            height: 150,
+            defaults: {
+                margin: '0 5 5 0'
+            },
+            items: []
+        }]
+    }
+    ],
+    // CSS adicional para melhorar a aparência
+    cls: 'pessoa-form-with-uploads',
+
+    buttons: [{
+        text: 'Salvar',
+        formBind: true,
+        iconCls: 'x-fa fa-save',
+        handler: function(btn) {Ext.getApplication().getController('PessoasController').onSavePessoa(btn);}
+    }, {
+        text: 'Cancelar',
+        iconCls: 'x-fa fa-times',
+        handler: function(btn) {Ext.getApplication().getController('PessoasController').onCancelPessoa(btn);}
+    }],
+
+    // Validação adicional antes de salvar
+    beforeSave: function() {
+        var form = this;
+
+        if (!form.isValid()) {
+            Ext.Msg.alert('Erro', 'Por favor, corrija os campos inválidos.');
+            return false;
+        }
+
+        return true;
+    }
+});

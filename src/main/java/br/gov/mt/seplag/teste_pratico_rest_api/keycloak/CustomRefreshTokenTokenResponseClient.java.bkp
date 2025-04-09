@@ -1,0 +1,57 @@
+package br.gov.mt.seplag.teste_pratico_rest_api.keycloak;
+import org.springframework.http.MediaType;
+import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.http.OAuth2ErrorResponseErrorHandler;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClient;
+
+import java.time.Duration;
+import java.time.Instant;
+
+public class CustomRefreshTokenTokenResponseClient
+        implements OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> {
+
+    private final RestClient restClient;
+
+    public CustomRefreshTokenTokenResponseClient() {
+        this.restClient = RestClient.builder()
+                .defaultStatusHandler(new OAuth2ErrorResponseErrorHandler())
+                .build();
+    }
+
+    @Override
+    public OAuth2AccessTokenResponse getTokenResponse(OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest) {
+        return this.restClient.post()
+                .uri(refreshTokenGrantRequest.getClientRegistration().getProviderDetails().getTokenUri())
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(createFormParameters(refreshTokenGrantRequest))
+                .retrieve()
+                .body(OAuth2AccessTokenResponse.class);
+    }
+
+    private MultiValueMap<String, String> createFormParameters(OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest) {
+        MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
+        formParameters.add("grant_type", "refresh_token");
+        formParameters.add("refresh_token", refreshTokenGrantRequest.getRefreshToken().getTokenValue());
+        formParameters.add("client_id", refreshTokenGrantRequest.getClientRegistration().getClientId());
+        formParameters.add("client_secret", refreshTokenGrantRequest.getClientRegistration().getClientSecret());
+
+        // Adiciona prompt=login se o refresh token estiver perto de expirar
+        if (isRefreshTokenNearExpiry(refreshTokenGrantRequest.getRefreshToken())) {
+            formParameters.add("prompt", "login");
+        }
+
+        return formParameters;
+    }
+
+    private boolean isRefreshTokenNearExpiry(OAuth2RefreshToken refreshToken) {
+        if (refreshToken.getExpiresAt() == null) {
+            return false;
+        }
+        return refreshToken.getExpiresAt().isBefore(Instant.now().plus(Duration.ofHours(24)));
+    }
+}

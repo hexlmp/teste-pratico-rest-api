@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres1234
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      seplag-network:
+        ipv4_address: 192.168.10.100
+
+#-------------------------------------------------------------
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: admin1234
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      seplag-network:
+        ipv4_address: 192.168.10.101
+
+#-------------------------------------------------------------
+
+  ldap:
+    container_name: ldap_seplag
+    build:
+      context: ./ldap
+    ports:
+      - 389:389
+      - 10389:10389
+    networks:
+      seplag-network:
+        ipv4_address: 192.168.10.102
+
+#-------------------------------------------------------------
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.1.4
+    container_name: keycloak
+    environment:
+      KC_HOSTNAME: localhost  # nome da máquina na rede
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak_bd
+      KC_DB_SCHEMA: public
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres1234      
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin1234
+      KC_IMPORT_REALM: /opt/keycloak/data/import/realm-export.json  # Importa o realm
+      KC_LOG_LEVEL: info
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json                   
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - ldap
+    networks:
+      seplag-network:
+        ipv4_address: 192.168.10.103
+    command:
+      ["start-dev", "--import-realm"]
+
+#-------------------------------------------------------------
+
+volumes:
+  postgres_data:
+  minio_data:
+
+networks:
+  seplag-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.10.0/24
