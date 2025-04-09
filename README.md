@@ -1,4 +1,4 @@
-## Teste prático do edital 02/2025/SEPLAG (Analista de TI - Perfil Junior, Pleno e Sênior)
+## Teste prático do edital 02/2025/SEPLAG (Analista de TI - Perfil Sênior)
 
 ### Dados da inscrição
 Nome: Luciano Machado Pereira
@@ -28,7 +28,7 @@ Armazenar as fotos da pessoa, conforme proposto no teste.
 No diretório *teste-pratico-rest-api/docker*, executar os comandos:
 
 #### Montar imagens dos containers
-    time DOCKER_BUILDKIT=1 docker-compose up -d --remove-orphans
+    time DOCKER_BUILDKIT=1 docker-compose up --build -d --remove-orphans
 
 #### Executar os containers
     docker-compose start
@@ -36,19 +36,30 @@ No diretório *teste-pratico-rest-api/docker*, executar os comandos:
 ## Acessar a aplicação
 
 Após o comando docker-compose start, se tudo correr bem, a aplicação estará disponível nos seguintes endereços e portas:
+
+#### Aplicação teste-pratico-rest-api
+endereço: http://localhost:8081
+ 
+|Usuário LDAP|Senha|Rule|
+|--|--|--|
+|user|user|USER|
+|lucianopereira|admin1234|Admin|
+|seplag|admin|Admin|
+
 #### Keycloak Admin
 endereço:  http://localhost:8080
 usuário: admin
 senha: admin1234
 
-#### Aplicação teste-pratico-rest-api
-endereço: http://localhost:8081
- 
-|Usuário|Senha|
-|--|--|
-|user|user|
-|lucianopereira|admin1234|
-|seplag|admin|
+#### Min. IO Admin
+endereço:  http://localhost:9001
+usuário: admin
+senha: admin1234
 
+#### LDAP
+endereço:  http://localhost:10389
+simple authentication
+Bind DN: uid=admin,ou=system
+senha: secret
 
 

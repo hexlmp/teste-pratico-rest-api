@@ -7,6 +7,7 @@ import br.gov.mt.seplag.teste_pratico_rest_api.keycloak.CustomAuthenticationFail
 import br.gov.mt.seplag.teste_pratico_rest_api.keycloak.CustomAuthenticationSuccessHandler;
 import br.gov.mt.seplag.teste_pratico_rest_api.keycloak.KeycloakLoginEntryPoint;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -45,6 +46,9 @@ import java.util.stream.Stream;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Value("${keycloak.auth-server-url}")
+    private String keycloakHost;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -97,7 +101,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        return JwtDecoders.<NimbusJwtDecoder>fromIssuerLocation("http://localhost:8080/realms/seplag-mt");
+        return JwtDecoders.<NimbusJwtDecoder>fromIssuerLocation(keycloakHost + "/realms/seplag-mt");
     }
 
     interface AuthoritiesConverter extends Converter<Map<String, Object>, Collection<GrantedAuthority>>
@@ -237,11 +241,11 @@ public class SecurityConfig {
                 .redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
                 .scope("openid", "profile", "email", "roles")
                 .userNameAttributeName("preferred_username")
-                .authorizationUri("http://localhost:8080/realms/seplag-mt/protocol/openid-connect/auth")
-                .tokenUri("http://localhost:8080/realms/seplag-mt/protocol/openid-connect/token")
-                .userInfoUri("http://localhost:8080/realms/seplag-mt/protocol/openid-connect/userinfo")
-                .jwkSetUri("http://localhost:8080/realms/seplag-mt/protocol/openid-connect/certs")
-                .issuerUri("http://localhost:8080/realms/seplag-mt")
+                .authorizationUri(keycloakHost + "/realms/seplag-mt/protocol/openid-connect/auth")
+                .tokenUri(keycloakHost + "/realms/seplag-mt/protocol/openid-connect/token")
+                .userInfoUri(keycloakHost + "/realms/seplag-mt/protocol/openid-connect/userinfo")
+                .jwkSetUri(keycloakHost + "/realms/seplag-mt/protocol/openid-connect/certs")
+                .issuerUri(keycloakHost + "/realms/seplag-mt")
                 .build();
     }
 

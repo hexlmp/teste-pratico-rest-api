@@ -78,6 +78,25 @@ services:
 
 #-------------------------------------------------------------
 
+  app_seplag:
+    container_name: app_seplag
+    build:
+      context: ./app
+    environment:
+      POSTGRESQL_HOST=postgres
+      MINIO_HOST=minio
+      KEYCLOAK_HOST=keycloak
+    ports:
+      - 8081:8081
+    depends_on:
+      - postgres
+      - ldap
+      - keycloak
+    networks:
+      seplag-network:
+        ipv4_address: 192.168.10.104
+
+#-------------------------------------------------------------
 volumes:
   postgres_data:
   minio_data:
