@@ -1,7 +1,8 @@
-## Teste prático do edital 02/2025/SEPLAG (Analista de TI - Perfil Sênior)
+## Teste prático do edital 02/2025/SEPLAG (Analista de TI - Perfil Junior, Pleno e Sênior)
 
 ### Dados da inscrição
 Nome: Luciano Machado Pereira
+
 URL do projeto no GitHub: https://github.com/hexlmp/teste-pratico-rest-api/tree/develop
 
 ### Requisitos
@@ -17,8 +18,13 @@ Obs: São criados três usuário ao montar o container: user, lucianopereira, se
 
 #### Keycloak (26.1.4)
 Para o gerenciamento de identidade e acesso. Utilizado em conjunto com o LDAP para questões de autorização e autenticação. 
-Ele gera um Access Token após a autenticação contento os grupos aos quais o usuário pertence.
-Obs: é criado o **realm seplag-mt** ao montar o container. 
+Ele gera um Access Token após a autenticação, contento os grupos aos quais o usuário pertence.
+
+Obs: é criado o **realm seplag-mt** ao montar o container. O realm está configurado para gerar access_token que expiram em 5 minutos. 
+
+O back-end tem um filtro que adiciona no cabeçalho HTTP os atributos *X-AccessToken-Principal* e *X-AccessToken-Expire*, que são, respectivamente, o nome do usuário e tempo restante de sessão.
+
+O Front-end por meio desses atributos, mostra o tempo restante de sessão e, quando restar menos de 30 segundos, aparecerá um botão de renovar sessão.
 
 #### PostgreSQL (latest)
 Armazenar os dados do modelo relacional proposto.
@@ -76,5 +82,8 @@ endereço:  http://localhost:10389
 simple authentication
 Bind DN: uid=admin,ou=system
 senha: secret
+
+
+ 
 
 
