@@ -100,7 +100,7 @@ Ext.define('App.controller.PessoasController', {
                         Ext.toast({
                             html: 'Erro ao remover pessoa',
                             timeout: 3000,
-                            ui: 'error'
+                            cls: 'toast-error'
                         });
                     }
                 });
@@ -187,7 +187,7 @@ Ext.define('App.controller.PessoasController', {
                         Ext.toast({
                             html: errorMsg,
                             timeout: 3000,
-                            ui: 'error'
+                            cls: 'toast-error'
                         });
                     }
                 });
@@ -310,7 +310,11 @@ Ext.define('App.controller.PessoasController', {
             },
             failure: function() {
                 thumbnail.setLoading(false);
-                Ext.toast('Erro ao enviar foto', 'Erro', 'error');
+                Ext.toast({
+                    html: 'Erro ao enviar foto!',
+                    timeout: 3000,
+                    cls: 'toast-error'
+                });
             },
             scope: this
         });
@@ -356,7 +360,11 @@ Ext.define('App.controller.PessoasController', {
                 }, this);
             },
             failure: function() {
-                Ext.toast('Erro ao carregar fotos', 'Erro', 'error');
+                Ext.toast({
+                    html: 'Erro ao carregar fotos!',
+                    timeout: 3000,
+                    cls: 'toast-error'
+                });
             },
             scope: this
         });
@@ -423,10 +431,19 @@ Ext.define('App.controller.PessoasController', {
                         if (thumbnail) {
                             container.remove(thumbnail);
                         }
-                        Ext.toast('Foto removida com sucesso', 'Sucesso');
+                        Ext.toast({
+                            html: 'Foto removida com sucesso!',
+                            timeout: 3000
+                        });
+
                     },
                     failure: function() {
-                        Ext.toast('Erro ao remover foto', 'Erro', 'error');
+                        Ext.toast({
+                            html: 'Erro ao remover foto!',
+                            timeout: 3000,
+                            cls: 'toast-error'
+                        });
+
                     }
                 });
             }
@@ -461,10 +478,18 @@ Ext.define('App.controller.PessoasController', {
                  success: function() {
                      // Adiciona o endereço ao grid localmente
                      store.add(enderecoRecord);
-                     Ext.toast('Endereço vinculado com sucesso', 'Sucesso');
+                     Ext.toast({
+                          html: 'Endereço vinculado com sucesso!',
+                          timeout: 3000
+                     });
+
                  },
                  failure: function(response) {
-                     Ext.toast('Erro ao vincular endereço', 'Erro', 'error');
+                     Ext.toast({
+                         html: 'Erro ao vincular endereço!',
+                         timeout: 3000,
+                         cls: 'toast-error'
+                     });
                  }
              });
          }
@@ -488,10 +513,17 @@ Ext.define('App.controller.PessoasController', {
                          method: 'DELETE',
                          success: function() {
                              store.remove(enderecoRecord);
-                             Ext.toast('Endereço desvinculado com sucesso', 'Sucesso');
+                             Ext.toast({
+                                 html: 'Endereço desvinculado com sucesso!',
+                                 timeout: 3000
+                             });
                          },
                          failure: function() {
-                             Ext.toast('Erro ao desvincular endereço', 'Erro', 'error');
+                             Ext.toast({
+                                 html: 'Erro ao desvincular endereço!',
+                                 timeout: 3000,
+                                 cls: 'toast-error'
+                             });
                          }
                      });
                  }
@@ -517,7 +549,11 @@ Ext.define('App.controller.PessoasController', {
                  store.loadData(data);
              },
              failure: function() {
-                 Ext.toast('Erro ao carregar endereços', 'Erro', 'error');
+                 Ext.toast({
+                     html: 'Erro ao carregar endereços!',
+                     timeout: 3000,
+                     cls: 'toast-error'
+                 });
              }
          });
      }

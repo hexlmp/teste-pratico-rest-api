@@ -88,97 +88,118 @@ Ext.define('App.view.main.MainController', {
     },
 
     // Sesão
-    sessionTimer: null, // Referência para o timer
-    sessionInterval: null, // Referência para o intervalo
-
-    startSessionTimer: function() {
-        var view = this.getView();
-
-        // Para qualquer intervalo existente
-        if (this.sessionInterval) {
-            clearInterval(this.sessionInterval);
-        }
-
-        // Atualiza imediatamente e depois a cada 2 segundos
-        this.updateSessionTime();
-        this.sessionInterval = setInterval(this.updateSessionTime.bind(this), 2000);
+    // Estado da sessão
+    sessionData: {
+        principal: 'Usuário',
+        expireTime: 0,
+        lastUpdate: 0
     },
 
-    updateSessionTime: function() {
+    init: function() {
+        // Intercepta todas as respostas AJAX
+        Ext.Ajax.on('requestcomplete', this.updateFromHeaders, this);
+        Ext.Ajax.on('requestexception', this.updateFromHeaders, this);
+
+        // Inicia o timer de decremento
+        this.startSessionTimer();
+    },
+
+    updateFromHeaders: function(conn, response) {
+        // Atualiza o nome do usuário se estiver no header
+        var principal = response.getResponseHeader('X-AccessToken-Principal');
+        if (principal) {
+            this.sessionData.principal = principal;
+        }
+
+        // Atualiza o tempo de expiração se estiver no header
+        var expireHeader = response.getResponseHeader('X-AccessToken-Expire');
+        if (expireHeader) {
+            this.sessionData.expireTime = parseInt(expireHeader);
+            this.sessionData.lastUpdate = Math.floor(Date.now() / 1000);
+        }
+
+        this.updateTimerDisplay();
+    },
+
+    startSessionTimer: function() {
+        // Garante que só temos um timer ativo
+        if (this.sessionTimer) {
+            clearInterval(this.sessionTimer);
+        }
+
+        // Atualiza o display a cada segundo
+        this.sessionTimer = setInterval(this.updateTimerDisplay.bind(this), 1000);
+    },
+
+    updateTimerDisplay: function() {
+        // Calcula o tempo restante considerando o tempo decorrido
+        var now = Math.floor(Date.now() / 1000);
+        var elapsed = now - this.sessionData.lastUpdate;
+        var remaining = Math.max(0, this.sessionData.expireTime - elapsed);
+
         var timerComponent = this.getView().down('#sessionTimer');
-        var ctrl = this;
+        if (!timerComponent) return;
 
-        Ext.Ajax.request({
-            url: '/public/api/session/remaining-time',
-            method: 'GET',
-            success: function(response) {
-                var result = Ext.JSON.decode(response.responseText);
-                if (result && result.remainingTime !== undefined) {
-                    var time = result.remainingTime;
-                    var text = result.principal + ' - Tempo de sessão restante: ';
+        // Formata a exibição com ícone de usuário
+        var userInfo = '<span class="x-fa fa-user" style="margin-right:5px;"></span>' +
+                       this.sessionData.principal + ' - ';
+        var timeInfo = 'Tempo restante: ';
 
-                    if (time <= 3) {
-                        text += '<span style="color:red;font-weight:bold;">SESSÃO EXPIRADA</span>';
-                        // Redirecionar para logout ou mostrar mensagem
-                        ctrl.onSessionExpired();
-                    } else if (time <= 30) {
-                        text += '<span style="color:red;font-weight:bold;">' + time + '</span> segundos ';
-                        text += '<a href="#" class="renew-session" style="color:white;background:green;padding:2px 5px;border-radius:3px;text-decoration:none;">Renovar Sessão</a>';
-                    } else if (time <= 60) {
-                        text += '<span style="color:orange;font-weight:bold;">' + time + '</span> segundos';
-                    } else {
-                        text += '<span style="font-weight:bold;">' + time + '</span> segundos';
-                    }
+        if (remaining <= 0) {
+            timeInfo = '<span style="color:red;font-weight:bold;">SESSÃO EXPIRADA</span>';
+            this.onSessionExpired();
+        }
+        else if (remaining <= 30) {
+            timeInfo += '<span style="color:red;font-weight:bold;">' + remaining + '</span>s ';
+            timeInfo += '<a href="#" class="renew-session" style="color:white;background:green;padding:2px 5px;border-radius:3px;text-decoration:none;">Renovar</a>';
+        }
+        else if (remaining <= 60) {
+            timeInfo += '<span style="color:orange;font-weight:bold;">' + remaining + '</span>s';
+        }
+        else {
+            var minutes = Math.floor(remaining / 60);
+            var seconds = remaining % 60;
+            timeInfo += '<span style="font-weight:bold;">' + minutes + 'm ' + seconds + 's</span>';
+        }
 
-                    timerComponent.update(text);
+        timerComponent.update(userInfo + timeInfo);
 
-                    // Adiciona handler para o link de renovação
-                    if (time <= 30) {
-                        timerComponent.getEl().down('.renew-session').on('click', function(e) {
-                            e.preventDefault();
-                            ctrl.renewSession();
-                        });
-                    }
-                }
-            },
-            failure: function() {
-                timerComponent.update('Tempo restante: <span style="color:gray;">--</span>');
+        // Configura o handler de renovação se necessário
+        if (remaining <= 30) {
+            var link = timerComponent.getEl().down('.renew-session');
+            if (link) {
+                link.on('click', function(e) {
+                    e.preventDefault();
+                    this.renewSession();
+                }, this);
             }
-        });
+        }
     },
 
     renewSession: function() {
         var timerComponent = this.getView().down('#sessionTimer');
-
-        // Mostrar loading
-        timerComponent.update('Renovando sessão...');
-
+        if (timerComponent) {
+            timerComponent.update('Renovando sessão...');
+        }
         Ext.Ajax.request({
             url: '/protected/api/session/refresh',
             method: 'GET',
             success: function(response) {
-                var result = Ext.JSON.decode(response.responseText);
-                if (result && result.success) {
-                    Ext.toast({
-                        html: 'Sessão renovada com sucesso!',
-                        timeout: 3000
-                    });
-                    // Força atualização imediata do timer
-                    this.updateSessionTime();
-                } else {
-                    timerComponent.update('Erro ao renovar sessão. <a href="#" class="renew-session">Tentar novamente</a>');
-                    timerComponent.getEl().down('.renew-session').on('click', function(e) {
-                        e.preventDefault();
-                        this.renewSession();
-                    }, this);
-                }
+                this.updateFromHeaders(null, response);
+
+                Ext.Ajax.request({url: '/public/api/session/remaining-time',method: 'GET'});
+
+                Ext.toast({
+                    html: 'Sessão renovada com sucesso!',
+                    timeout: 3000
+                });
             },
             failure: function() {
-                timerComponent.update('Falha na conexão. <a href="#" class="renew-session">Tentar novamente</a>');
-                timerComponent.getEl().down('.renew-session').on('click', function(e) {
-                    e.preventDefault();
-                    this.renewSession();
-                }, this);
+                Ext.toast({
+                    html: 'Erro ao renovar a sessão!',
+                    timeout: 3000,
+                    cls: 'toast-error'
+                });
             },
             scope: this
         });

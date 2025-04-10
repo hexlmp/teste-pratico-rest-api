@@ -90,7 +90,7 @@ Ext.define('App.controller.EnderecosController', {
                         Ext.toast({
                             html: 'Erro ao remover endereço',
                             timeout: 3000,
-                            ui: 'error'
+                            cls: 'toast-error'
                         });
                     }
                 });
@@ -150,7 +150,7 @@ Ext.define('App.controller.EnderecosController', {
                         Ext.toast({
                             html: errorMsg,
                             timeout: 3000,
-                            ui: 'error'
+                            cls: 'toast-error'
                         });
                     }
                 });

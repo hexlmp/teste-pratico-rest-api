@@ -51,7 +51,7 @@ Ext.define('App.controller.UnidadesController', {
                         Ext.toast({
                             html: 'Erro ao remover unidade!',
                             timeout: 3000,
-                            ui: 'error'
+                            cls: 'toast-error'
                         });
                     }
                 });
@@ -127,7 +127,7 @@ Ext.define('App.controller.UnidadesController', {
                     Ext.toast({
                         html: 'Falha ao vincular endereço',
                         timeout: 3000,
-                        ui: 'error'
+                        cls: 'toast-error'
                     });
                  },
                  callback: function() {
@@ -168,7 +168,7 @@ Ext.define('App.controller.UnidadesController', {
                      Ext.toast({
                           html: 'Erro ao desvincular endereço',
                           timeout: 3000,
-                          ui: 'error'
+                          cls: 'toast-error'
                       });
                  }
              });
@@ -220,7 +220,7 @@ Ext.define('App.controller.UnidadesController', {
                  Ext.toast({
                         html: (error.message || 'Falha ao salvar unidade'),
                         timeout: 3000,
-                        ui: 'error'
+                        cls: 'toast-error'
                     });
              }
          });
@@ -245,7 +245,7 @@ Ext.define('App.controller.UnidadesController', {
                 Ext.toast({
                     html: 'Erro ao carregar endereços',
                     timeout: 3000,
-                    ui: 'error'
+                    cls: 'toast-error'
                 });
              }
          });

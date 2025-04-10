@@ -77,7 +77,7 @@ Ext.define('App.controller.CidadesController', {
                         Ext.toast({
                             html: 'Erro ao remover cidade',
                             timeout: 3000,
-                            ui: 'error'
+                            cls: 'toast-error'
                         });
                     }
                 });
@@ -137,7 +137,7 @@ Ext.define('App.controller.CidadesController', {
                         Ext.toast({
                             html: errorMsg,
                             timeout: 3000,
-                            ui: 'error'
+                            cls: 'toast-error'
                         });
                     }
                 });

@@ -170,7 +170,7 @@ Ext.define('App.controller.ServidoresController', {
                         Ext.toast({
                             html: error.message || ('Erro ao ' + (isNew ? 'cadastrar' : 'atualizar') + ' servidor'),
                             timeout: 3000,
-                            cls: 'toast-error',
+                            cls: 'toast-error'
                             //iconCls: 'x-fa fa-exclamation-triangle' // Ícone de erro
                         });
 

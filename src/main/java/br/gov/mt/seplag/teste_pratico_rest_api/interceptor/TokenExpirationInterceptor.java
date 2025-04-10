@@ -86,6 +86,7 @@ public class TokenExpirationInterceptor implements HandlerInterceptor {
             //if (accessToken != null && accessToken.getExpiresAt().isBefore(Instant.now().plus(Duration.ofMinutes(5)))) {
             if (accessToken != null && accessToken.getExpiresAt() != null) {
                 response.addHeader("X-AccessToken-Expire", ""+Duration.between(Instant.now(), accessToken.getExpiresAt()).toSeconds());
+                response.addHeader("X-AccessToken-Principal", authorizedClient.getPrincipalName());
             }
             if (accessToken != null && accessToken.getExpiresAt().isBefore(Instant.now())) {
                 //handleExpiredToken(request,response);
