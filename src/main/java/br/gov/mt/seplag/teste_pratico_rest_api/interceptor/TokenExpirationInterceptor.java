@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +28,12 @@ import java.util.List;
 
 @Component
 public class TokenExpirationInterceptor implements HandlerInterceptor {
+
+    @Value("${keycloak.auth-server-url}")
+    private String keycloakHost;
+
+    @Value("${app.host}")
+    private String appHost;    // http://localhost:8081
 
     @Autowired
     private OAuth2AuthorizedClientRepository authorizedClientRepository;
@@ -86,7 +93,7 @@ public class TokenExpirationInterceptor implements HandlerInterceptor {
                 request.logout();
 
                 // Redireciona de volta após login
-                response.sendRedirect("http://localhost:8080/realms/seplag-mt/protocol/openid-connect/logout?redirect_uri=http://localhost:8081");
+                response.sendRedirect(keycloakHost + "/realms/seplag-mt/protocol/openid-connect/logout?redirect_uri=" + appHost);
                 return true;
             }
 

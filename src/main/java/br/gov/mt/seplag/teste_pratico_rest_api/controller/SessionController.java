@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -38,6 +39,11 @@ import java.util.*;
 @RestController
 @RequestMapping("/protected/api/session")
 public class SessionController {
+    @Value("${keycloak.auth-server-url}")
+    private String keycloakHost;
+
+    @Value("${app.host}")
+    private String appHost;    // http://localhost:8081
 
     private static final long WARNING_THRESHOLD = 120;
     private final OAuth2AuthorizedClientService authorizedClientService;
@@ -144,19 +150,6 @@ public class SessionController {
     }
 
 
-    /*@GetMapping("/logout")
-    public ResponseEntity<?> forceRefreshSession(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
-    {
-        // Força um novo login (redireciona para o Keycloak)
-        //request.logout();
-
-        // Redireciona de volta após login
-        response.sendRedirect("http://localhost:8080/realms/seplag-mt/protocol/openid-connect/logout?redirect_uri=http://localhost:8081/oauth2/authorization/keycloak?prompt=login");
-        return ResponseEntity.noContent().build();
-    }*/
-
-
-
     @GetMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -173,10 +166,10 @@ public class SessionController {
 
         // 3. Prepara a URL de logout do Keycloak
         if (principal != null) {
-            String logoutUrl = "http://localhost:8080/realms/seplag-mt/protocol/openid-connect/logout" +
+            String logoutUrl = keycloakHost + "/realms/seplag-mt/protocol/openid-connect/logout" +
                     "?id_token_hint=" + principal.getIdToken().getTokenValue() +
                     "&post_logout_redirect_uri=" +
-                    URLEncoder.encode("http://localhost:8081/index.html", StandardCharsets.UTF_8);
+                    URLEncoder.encode(appHost + "/index.html", StandardCharsets.UTF_8);
 
             return ResponseEntity.ok()
                     .header("Location", logoutUrl)
@@ -201,17 +194,6 @@ public class SessionController {
                 .header(HttpHeaders.LOCATION, "/oauth2/authorization/keycloak")
                 .build();
     }
-
-    /*@GetMapping("/logout")
-    @ResponseBody
-    public String logout(@RequestParam String redirectUri) {
-        // Aqui, você pode invalidar qualquer sessão interna ou estado no backend, se necessário.
-
-        // Redireciona para o logout do Keycloak
-        // URL do Keycloak para realizar o logout
-        String keycloakLogoutUrl = "http://localhost:8080/realms/{realm}/protocol/openid-connect/logout";
-        return "redirect:" + keycloakLogoutUrl + "?redirect_uri=" + redirectUri;
-    }*/
 
 
     @Autowired

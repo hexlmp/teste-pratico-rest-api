@@ -1,12 +1,13 @@
-## Teste prático do edital 02/2025/SEPLAG (Analista de TI - Perfil Sênior)
+## Teste prático do edital 02/2025/SEPLAG (Analista de TI - Perfil Junior, Pleno e Sênior)
 
 ### Dados da inscrição
 Nome: Luciano Machado Pereira
-URL do projeto no GitHub: https://github.com/hexlmp/teste-pratico-rest-api
+URL do projeto no GitHub: https://github.com/hexlmp/teste-pratico-rest-api/tree/develop
 
 ### Requisitos
 - Docker-compose instalado e funcionando no ambiente.
 - Java 17 instalado e funcionando no ambiente.
+- Ubuntu/Debian
 
 ## Serviços executados no docker-compose.yml
 
@@ -23,15 +24,24 @@ Armazenar os dados do modelo relacional proposto.
 #### Min. IO (latest)
 Armazenar as fotos da pessoa, conforme proposto no teste.
 
-## Montar imangens dos containers
+## Montar imagens dos containers
 
-No diretório *teste-pratico-rest-api/docker*, executar os comandos:
+Criar e executar os containers e adição no /etc/hosts a entrada "127.0.0.1    keycloak" e "127.0.0.1    minio" para o funcionamento correto dos serviços:
 
-#### Montar imagens dos containers
-    time DOCKER_BUILDKIT=1 docker-compose up --build -d --remove-orphans
+    sh Build.sh 
 
-#### Executar os containers
-    docker-compose start
+Executar containers já criados:
+
+    sh Start.sh 
+
+Parar de containers:
+
+    sh Stop.sh 
+
+Destruir de containers:
+
+    sh Destroy.sh 
+
 
 ## Acessar a aplicação
 
