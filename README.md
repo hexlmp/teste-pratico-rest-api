@@ -1,6 +1,6 @@
-## Teste prático do edital 02/2025/SEPLAG (Analista de TI - Perfil Junior, Pleno e Sênior)
-
+## Teste prático do edital 02/2025/SEPLAG (Analista de TI - Sênior)
 ### Dados da inscrição
+
 Nome: Luciano Machado Pereira
 
 URL do projeto no GitHub: https://github.com/hexlmp/teste-pratico-rest-api/tree/develop
@@ -36,6 +36,7 @@ Armazenar as fotos da pessoa, conforme proposto em edital.
 ## Montar imagens dos containers
 
 Criar e executar os containers:
+
 *Obs: Para o funcionamento correto dos serviços, é feita adição no /etc/hosts ( "127.0.0.1    keycloak" e "127.0.0.1    minio")* 
 
     sh Build.sh 
